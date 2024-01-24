@@ -1,0 +1,18 @@
+.lineLeft {
+    border-left: 2px solid #a5a5df;
+    padding-left: 8px;
+    position: relative;
+    right: 10px;
+}
+
+.ItemsOpen {
+    max-height: 200px; 
+    transition: max-height 0.3s ease-out; 
+}
+
+.ItemsCollapsed {
+    overflow: hidden; 
+
+    max-height: 0; 
+    transition: max-height 0.3s ease-out; 
+}
