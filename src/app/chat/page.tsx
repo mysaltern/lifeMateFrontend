@@ -37,18 +37,30 @@ const Chat: React.FC = () => {
                 }),
             });
 
+
             const data = await response.json();
+            
             console.log('API response:', data);
 
+            if (response.status === 200) {
+                setMessages(prevMessages => [
+                    ...prevMessages,
+                    { message:answer, type: 'user', questionID:null,answerID: data['response']['answerID'] }
+                ]);
+    
+                setAnswer('');
+                apiCallMade.current = false;
+                fetchQuestions(12);
+            }
+            else {
+                // If the response status is not 200, handle the error and add an error message to the setMessages array
+                setMessages((prevMessages) => [
+                    ...prevMessages,
+                    { message: (data as any).message || 'Error submitting answer. Please try again.', type: 'robot', questionID: null, answerID: data.response.answerID },
+                ]);
+            }
             // Clear the answer field after submission
-            setMessages(prevMessages => [
-                ...prevMessages,
-                { message:answer, type: 'user', questionID:null,answerID: data['response']['answerID'] }
-            ]);
-
-            setAnswer('');
-            apiCallMade.current = false;
-            fetchQuestions(12);
+        
            
         } catch (error) {
             console.error('Error submitting answer:', error);
@@ -91,14 +103,20 @@ const Chat: React.FC = () => {
       }, [apiCallMade]);
 
   
-
-
+      const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+     
+        if (event.key === 'Enter') {
+          // If Enter key is pressed, run the handleSubmit function
+          handleSubmit();
+        }
+      };
+      
     return (
         <div className="flex">
-            <div className="w-1/5 bg-slate-800 h-screen overflow-y-auto">
+            <div className="w-2/12 bg-slate-800 h-screen overflow-y-auto">
                 <ProgressSection/>
             </div>
-            <div className="w-4/5 ">
+            <div className="w-10/12 ">
                 <div className='headerMain sticky top-0 z-50'>
                     <div className='bg-slate-300 pt-2 pb-4'>
                         <div className="flex justify-between">
@@ -135,13 +153,14 @@ const Chat: React.FC = () => {
                     id='answer'
                     type='text' 
                     placeholder='Say Something.....' 
-                    className='bg-slate-500 w-11/12 p-5' 
+                    className='bg-slate-500 w-[95%] p-5' 
                     value={answer}
+                    onKeyDown={handleKeyDown as any}
                     onChange={handleAnswerChange}  // Call the function when the input changes
                 />
                         <div className='flex items-center'>
                             <FontAwesomeIcon    
-                                 icon={faUpload}  onClick={handleSubmit}  className='text-gray-400 w-12 h-7 pr-5 cursor-pointer hover:text-blue-500' />
+                                 icon={faUpload}  onClick={handleSubmit} className='text-gray-400 w-12 h-7 pr-5 cursor-pointer hover:text-blue-500' />
                         </div>
                     </div>
                 </div>

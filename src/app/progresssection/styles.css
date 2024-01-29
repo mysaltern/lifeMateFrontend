@@ -1,8 +1,28 @@
-.lineLeft {
-    border-left: 2px solid #a5a5df;
+.lineLeftCompleted {
+    border-left: 2px solid #7cd79c;
     padding-left: 8px;
     position: relative;
     right: 10px;
+    color: #88e196;
+  font-size: 15px;
+}
+
+.progressLine {
+    border-left: 2px solid #c3b75d;
+    padding-left: 8px;
+    position: relative;
+    right: 10px;
+    color:#c3b75d;
+  font-size: 15px;
+}
+
+.progressLineDenied {
+    border-left: 2px solid #e43b3b;
+    padding-left: 8px;
+    position: relative;
+    right: 10px;
+    color: #cd6666;
+  font-size: 15px;
 }
 
 .ItemsOpen {
