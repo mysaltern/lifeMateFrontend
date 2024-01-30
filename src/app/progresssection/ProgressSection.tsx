@@ -91,7 +91,7 @@ const ProgressSection: React.FC = () => {
 
 
   return (
-    <div className='mt-20 pl-10'>
+    <div className='mt-10 pl-10'>
 
       <span className=''>Progress</span>
       <br />
@@ -104,7 +104,7 @@ const ProgressSection: React.FC = () => {
           />
           <span className='relative ml-8 bottom-1'>{category.categoryName}</span>
           <FontAwesomeIcon
-            icon={category.collapsed ? icons.faChevronDown : icons.faChevronUp}
+            icon={category.collapsed ? icons.faChevronUp : icons.faChevronDown}
             id='collapse'
             className='text-gray-400 w-5 absolute left-36 cursor-pointer'
             onClick={() => handleCollapse(category.id)}
