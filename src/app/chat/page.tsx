@@ -5,9 +5,10 @@ import { faEnvelope, faChevronUp, faChevronDown, faCamera, faBell, faUser, faUpl
 import './styles.css';
 import { API_BASE_URL } from '../../../config/development';
 import ProgressSection from '../progresssection/ProgressSection';
-
+import { getToken } from '../../../utils/auth';
+import { useRouter } from 'next/navigation';
 const Chat: React.FC = () => {
-
+    const router = useRouter();
     const [messagesFetch, setmessagesFetch] = useState([]);
     const [messages, setMessages] = useState([
         { message: "Hello", type: 'robot', questionID: null,answerID:null },
@@ -20,7 +21,45 @@ const Chat: React.FC = () => {
     const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setAnswer(event.target.value);
     };
+    useEffect(() => {
+        // Function to check if the user is authenticated
+        const checkAuthentication = async () => {
+            try {
+                // Retrieve the token from localStorage
+                const token = getToken();
 
+                // If the token is not present, redirect to the login page
+                if (!token) {
+                    router.push('/signin');
+                    return;
+                }
+
+                // Send a request to your server to verify the token
+                const responseToken = await fetch(`${API_BASE_URL}/check-auth`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                // Assuming the server responds with a 200 status for a valid token
+                if (responseToken.status === 200) {
+                    // User is authenticated, proceed with fetching questions
+                    fetchQuestions(12);
+                } else {
+                    // Redirect to the login page if the token is not valid
+                    router.push('/signin');
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                // Redirect to the login page on error
+                router.push('/signin');
+            }
+        };
+
+        // Call the checkAuthentication function when the component mounts
+        checkAuthentication();
+    }, []); 
     const handleSubmit = async () => {
 
         
@@ -66,12 +105,13 @@ const Chat: React.FC = () => {
             console.error('Error submitting answer:', error);
         }
     };
-    const fetchQuestions = async (userID:number) => {
+    const fetchQuestions = async (userID:number, userToken: string) => {
         try {
           const response = await fetch(`${API_BASE_URL}/chat`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${userToken}`, // Include the Bearer token
             },
             body: JSON.stringify({
               userID: userID,
@@ -99,7 +139,13 @@ const Chat: React.FC = () => {
       };
       
       useEffect(() => {
-        fetchQuestions(12); // Replace 12 with the actual userID
+        const token = getToken();
+        if (token && typeof token === 'string') {
+            fetchQuestions(12, token);
+          } else {
+            // Handle the case where the token is null or not a string
+            console.error('Token is null or not a string');
+          }
       }, [apiCallMade]);
 
   

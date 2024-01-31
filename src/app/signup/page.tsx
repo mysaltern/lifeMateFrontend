@@ -136,8 +136,7 @@ const SignUpPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center justify-center">
-                        {/* ... rest of your component */}
-
+                     
                         {/* Alert div */}
                         {isAlertVisible && (
                             <div className="mt-4 bg-green-700 w-72 text-white p-2 rounded">
