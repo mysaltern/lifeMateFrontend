@@ -11,13 +11,12 @@ const Chat: React.FC = () => {
     const router = useRouter();
     const [messagesFetch, setmessagesFetch] = useState([]);
     const [messages, setMessages] = useState([
-        { message: "Hello", type: 'robot', questionID: null,answerID:null },
+        { message: "Hello", type: 'robot', questionID: null, answerID: null },
     ]);
     const [answer, setAnswer] = useState('');
     const [questionID, setQuestionID] = useState('');
     const apiCallMade = useRef(false);
-
-
+    const [userToken, setUserToken] = useState<string | null>('');
     const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setAnswer(event.target.value);
     };
@@ -26,8 +25,8 @@ const Chat: React.FC = () => {
         const checkAuthentication = async () => {
             try {
                 // Retrieve the token from localStorage
-                const token = getToken();
-
+                const token = await getToken();
+                setUserToken(token);
                 // If the token is not present, redirect to the login page
                 if (!token) {
                     router.push('/signin');
@@ -45,7 +44,7 @@ const Chat: React.FC = () => {
                 // Assuming the server responds with a 200 status for a valid token
                 if (responseToken.status === 200) {
                     // User is authenticated, proceed with fetching questions
-                    fetchQuestions(12);
+                    fetchQuestions(12, token);
                 } else {
                     // Redirect to the login page if the token is not valid
                     router.push('/signin');
@@ -59,10 +58,10 @@ const Chat: React.FC = () => {
 
         // Call the checkAuthentication function when the component mounts
         checkAuthentication();
-    }, []); 
+    }, []);
     const handleSubmit = async () => {
 
-        
+
         try {
             const response = await fetch(`${API_BASE_URL}/answer`, {
                 method: 'POST',
@@ -78,18 +77,18 @@ const Chat: React.FC = () => {
 
 
             const data = await response.json();
-            
+
             console.log('API response:', data);
 
             if (response.status === 200) {
                 setMessages(prevMessages => [
                     ...prevMessages,
-                    { message:answer, type: 'user', questionID:null,answerID: data['response']['answerID'] }
+                    { message: answer, type: 'user', questionID: null, answerID: data['response']['answerID'] }
                 ]);
-    
+
                 setAnswer('');
                 apiCallMade.current = false;
-                fetchQuestions(12);
+                fetchQuestions(12, userToken);
             }
             else {
                 // If the response status is not 200, handle the error and add an error message to the setMessages array
@@ -99,68 +98,75 @@ const Chat: React.FC = () => {
                 ]);
             }
             // Clear the answer field after submission
-        
-           
+
+
         } catch (error) {
             console.error('Error submitting answer:', error);
         }
     };
-    const fetchQuestions = async (userID:number, userToken: string) => {
+    const fetchQuestions = async (userID: number, userToken: string | null) => {
         try {
-          const response = await fetch(`${API_BASE_URL}/chat`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${userToken}`, // Include the Bearer token
-            },
-            body: JSON.stringify({
-              userID: userID,
-            }),
-          });
-      
-          const data = await response.json();
-          setmessagesFetch(data);
-          if (!apiCallMade.current) {
-            apiCallMade.current = true;
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              {
-                message: data['response']['questionDescription'],
-                type: 'robot',
-                questionID: data['response']['questionID'],
-                answerID: null,
-              },
-            ]);
-            setQuestionID(data['response']['questionID']);
-          }
-        } catch (error) {
-          console.error('Error fetching messages:', error);
-        }
-      };
-      
-      useEffect(() => {
-        const token = getToken();
-        if (token && typeof token === 'string') {
-            fetchQuestions(12, token);
-          } else {
-            // Handle the case where the token is null or not a string
-            console.error('Token is null or not a string');
-          }
-      }, [apiCallMade]);
+            const response = await fetch(`${API_BASE_URL}/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${userToken}`, // Include the Bearer token
+                },
+                body: JSON.stringify({
+                    userID: userID,
+                }),
+            });
 
-  
-      const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-     
-        if (event.key === 'Enter') {
-          // If Enter key is pressed, run the handleSubmit function
-          handleSubmit();
+            const data = await response.json();
+            setmessagesFetch(data);
+            if (!apiCallMade.current) {
+                apiCallMade.current = true;
+                setMessages((prevMessages) => [
+                    ...prevMessages,
+                    {
+                        message: data['response']['questionDescription'],
+                        type: 'robot',
+                        questionID: data['response']['questionID'],
+                        answerID: null,
+                    },
+                ]);
+                setQuestionID(data['response']['questionID']);
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
         }
-      };
-      
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const token = await getToken(); // Wait for the token
+                if (token && typeof token === 'string') {
+                    fetchQuestions(12, token);
+                } else {
+                    console.error('Token is null or not a string');
+                }
+            } catch (error) {
+                console.error('Error fetching token:', error);
+            }
+        };
+
+        fetchData();
+    }, [apiCallMade]);
+
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+
+        if (event.key === 'Enter') {
+            // If Enter key is pressed, run the handleSubmit function
+            handleSubmit();
+        }
+    };
+
     return (
         <div className="flex">
             <div className="w-2/12 bg-slate-800 h-screen overflow-y-auto">
-                <ProgressSection/>
+                <ProgressSection />
             </div>
             <div className="w-10/12 ">
                 <div className='headerMain sticky top-0 z-50'>
@@ -195,18 +201,18 @@ const Chat: React.FC = () => {
                         ))}
                     </div>
                     <div className='submitText max-h-24 min-h-10 bg-slate-500 flex items-center justify-between sticky bottom-0 w-full'>
-                       <input 
-                    id='answer'
-                    type='text' 
-                    placeholder='Say Something.....' 
-                    className='bg-slate-500 w-[95%] p-5' 
-                    value={answer}
-                    onKeyDown={handleKeyDown as any}
-                    onChange={handleAnswerChange}  // Call the function when the input changes
-                />
+                        <input
+                            id='answer'
+                            type='text'
+                            placeholder='Say Something.....'
+                            className='bg-slate-500 w-[95%] p-5'
+                            value={answer}
+                            onKeyDown={handleKeyDown as any}
+                            onChange={handleAnswerChange}  // Call the function when the input changes
+                        />
                         <div className='flex items-center'>
-                            <FontAwesomeIcon    
-                                 icon={faUpload}  onClick={handleSubmit} className='text-gray-400 w-12 h-7 pr-5 cursor-pointer hover:text-blue-500' />
+                            <FontAwesomeIcon
+                                icon={faUpload} onClick={handleSubmit} className='text-gray-400 w-12 h-7 pr-5 cursor-pointer hover:text-blue-500' />
                         </div>
                     </div>
                 </div>
