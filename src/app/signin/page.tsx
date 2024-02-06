@@ -108,7 +108,7 @@ const SignInPage: React.FC = () => {
                 <div className='flex items-center justify-center'>
                     <div className='relative rounded-lg p-1 bg-slate-600  w-72' >
                         <input className='pl-4 bg-transparent text-white placeholder-white rounded-lg p-1 w-full'
-                            type='text'
+                            type='password'
                             placeholder='Enter your password'
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}

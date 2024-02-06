@@ -63,14 +63,16 @@ const Chat: React.FC = () => {
 
 
         try {
+               const token = await getToken();
+                setUserToken(token);
             const response = await fetch(`${API_BASE_URL}/answer`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     questionID: questionID,
-                    userID: '1',
                     answerDescription: answer,
                 }),
             });
@@ -104,7 +106,7 @@ const Chat: React.FC = () => {
             console.error('Error submitting answer:', error);
         }
     };
-    const fetchQuestions = async (userID: number, userToken: string | null) => {
+    const fetchQuestions = async (userID: number, userToken: string|null) => {
         try {
             const response = await fetch(`${API_BASE_URL}/chat`, {
                 method: 'POST',
@@ -139,20 +141,20 @@ const Chat: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const token = await getToken(); // Wait for the token
-                if (token && typeof token === 'string') {
-                    fetchQuestions(12, token);
-                } else {
-                    console.error('Token is null or not a string');
-                }
-            } catch (error) {
-                console.error('Error fetching token:', error);
+          try {
+            const token = await getToken(); // Wait for the token
+            if (token && typeof token === 'string') {
+              fetchQuestions(12, token);
+            } else {
+              console.error('Token is null or not a string');
             }
+          } catch (error) {
+            console.error('Error fetching token:', error);
+          }
         };
-
+    
         fetchData();
-    }, [apiCallMade]);
+      }, [apiCallMade]);
 
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
