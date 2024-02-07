@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as icons from '@fortawesome/free-solid-svg-icons';
 import { API_BASE_URL } from '../../../config/development';
+
 import './styles.css';
 // interface ProgressSectionProps {
 //   items: string[];
 // }
-
+import { getToken } from '../../../utils/auth';
 const ProgressSection: React.FC = () => {
 
   interface Category {
@@ -68,13 +69,16 @@ const ProgressSection: React.FC = () => {
 
     const fetchDataSubCategories = async () => {
       try {
+        const token = await getToken();
+     
         const response = await fetch(`${API_BASE_URL}/subcategories`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
-            "userID": "1"
+            "userID": "18"
           }),
         });
 
