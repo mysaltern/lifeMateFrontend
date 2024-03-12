@@ -7,8 +7,7 @@ import './styles.css';
 // interface ProgressSectionProps {
 //   items: string[];
 // }
-import { getToken } from '../../../utils/auth';
-const ProgressSection: React.FC = () => {
+const ProgressSection: React.FC<{ token: string | null }> = (props) => {
 
   interface Category {
     id: number;
@@ -69,13 +68,12 @@ const ProgressSection: React.FC = () => {
 
     const fetchDataSubCategories = async () => {
       try {
-        const token = await getToken();
-     
+       
         const response = await fetch(`${API_BASE_URL}/subcategories`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${props.token}`,
           },
           body: JSON.stringify({
             "userID": "18"
@@ -110,7 +108,7 @@ const ProgressSection: React.FC = () => {
           <FontAwesomeIcon
             icon={category.collapsed ? icons.faChevronUp : icons.faChevronDown}
             id='collapse'
-            className='text-gray-400 w-5 absolute left-36 cursor-pointer'
+            className='text-gray-400 w-5 absolute right-6 cursor-pointer'
             onClick={() => handleCollapse(category.id)}
           />
           <div className={`flex flex-col pt-5 ${category.collapsed ? 'ItemsCollapsed' : 'ItemsOpen'}`}>

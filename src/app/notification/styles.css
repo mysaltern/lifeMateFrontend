@@ -1,0 +1,19 @@
+.notification-section {
+    transition: opacity 100s ease-in-out;
+    opacity: 0;
+  }
+  
+  .notification-section.show {
+    transition: opacity 100s ease-in-out;
+
+    opacity: 1;
+  }
+  
+  .notification-section.hide {
+    transition: opacity 100s ease-in-out;
+
+    opacity: 0;
+  }
+  .notification-item {
+    transition: opacity 0.3s ease-in-out; /* Add a smooth transition for opacity */
+  }

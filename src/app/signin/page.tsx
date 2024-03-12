@@ -65,7 +65,7 @@ const SignInPage: React.FC = () => {
             if (response.status === 200) {
                 localStorage.setItem('token', data.token);
                 // Successfully signed up, handle the response as needed
-                router.push('/chat');
+                router.push('/');
                 // Optionally, you can redirect the user to a different page or show a success message
             } else {
                 setAlertMessage(data.error);
